@@ -3,13 +3,14 @@ import Menu from "./components/Menu.jsx";
 import Checkout from "./components/Checkout.jsx";
 import Confirm from "./components/Confirm.jsx";
 import Success from "./components/Success.jsx";
+import Splash from "./components/Splash.jsx";
 import { OWNER_PHONE } from "./config.js";
 import { generateOrderId } from "./utils/order.js";
 import { getMenu } from "./utils/menu.js";
 import { uploadToFileIO } from "./utils/upload.js";
 
 export default function App(){
-  const [view,setView]=useState("menu");
+  const [view,setView]=useState("splash");
   const [cart,setCart]=useState(()=>{try{const r=localStorage.getItem("hc_cart");return r?JSON.parse(r):{};}catch{return {}}});
   const [cust,setCust]=useState(null);
   const items=useMemo(()=>{const menu=getMenu();return Object.entries(cart).map(([id,q])=>{const it=menu.items.find(x=>x.id===id);return it?{item:it,qty:q}:null;}).filter(Boolean);},[cart]);
@@ -20,6 +21,7 @@ export default function App(){
   function proceed(){setView("checkout");}
   function backToMenu(){setView("menu");}
   function toConfirm(payload){setCust(payload);setView("confirm");}
+  function skipSplash(){setView("menu");}
   async function toSuccess(){
     const orderId=generateOrderId();
     let lines=[];
@@ -68,6 +70,7 @@ export default function App(){
 
   function successBack(){setCart({});localStorage.removeItem("hc_cart");setView("menu");}
 
+  if(view==="splash") return <Splash onContinue={skipSplash} />;
   if(view==="menu") return <Menu cart={cart} setCart={setCart} onProceed={proceed}/>;
   if(view==="checkout") return <Checkout cart={cart} setCart={setCart} onBack={backToMenu} onSubmit={toConfirm}/>;
   if(view==="confirm") return <Confirm name={cust.name} phone={cust.phone} total={total} onBack={()=>setView("checkout")} onConfirm={toSuccess}/>;

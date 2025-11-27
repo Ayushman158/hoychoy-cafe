@@ -68,7 +68,7 @@ export default function Checkout({cart, setCart, onBack, onSubmit}){
         <div className="row font-bold"><span>Total</span><span className="price">₹{total}</span></div>
       </div>
 
-      <div className="card">
+      <div className="card mt-3">
         <div className="section-title">Customer Details</div>
         <label className="flex flex-col gap-1 my-2"><span>Name *</span><input className="bg-[#111] border border-[#222] rounded-xl p-2" value={name} onChange={e=>setName(e.target.value)} />{!name.trim()&&<span className="text-error text-xs mt-1">Name is required</span>}</label>
         <label className="flex flex-col gap-1 my-2"><span>Phone Number *</span><input className="bg-[#111] border border-[#222] rounded-xl p-2" value={phone} onChange={e=>setPhone(e.target.value)} />{(phone&&phone.replace(/\D/g,"").length!==10)&&<span className="text-error text-xs mt-1">Enter 10-digit phone</span>}</label>
@@ -86,7 +86,7 @@ export default function Checkout({cart, setCart, onBack, onSubmit}){
         <div className="text-muted text-xs mt-1">We'll use your location only for this delivery.</div>
       </div>
 
-      <div className="card">
+      <div className="card mt-3">
         <div className="section-title">UPI Payment</div>
         <div className="flex flex-col items-center gap-2 bg-[#111] border border-dashed border-[#333] rounded-xl p-3">
           <img alt="UPI QR" className="w-56 h-56 bg-white" src={`https://chart.googleapis.com/chart?cht=qr&chs=220x220&chl=${encodeURIComponent(upiIntent)}`} />
@@ -105,7 +105,7 @@ export default function Checkout({cart, setCart, onBack, onSubmit}){
         </label>
       </div>
 
-      <button className={`btn btn-primary w-full mb-6 ${!valid?'btn-disabled':''}`} disabled={!valid} onClick={submit}>Submit Order</button>
+      <button className={`btn btn-primary w-full mt-4 mb-6 ${!valid?'btn-disabled':''}`} disabled={!valid} onClick={submit}>Submit Order</button>
     </section>
   );
 }

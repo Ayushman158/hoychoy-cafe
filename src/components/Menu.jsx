@@ -5,6 +5,7 @@ export default function Menu({cart, setCart, onProceed}){
   const [filter,setFilter]=useState("all");
   const [cat,setCat]=useState("all");
   const [justAdded,setJustAdded]=useState(null);
+  const [query,setQuery]=useState("");
   const VegIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" strokeWidth="2">
     <rect
@@ -47,12 +48,14 @@ const NonVegIcon = () => (
 );
   const categories=["all",...data.categories];
   const items=useMemo(()=>{
+    const q=query.trim().toLowerCase();
     return data.items.filter(i=>{
       const okF=filter==="all"||(filter==="veg"&&i.veg)||(filter==="nonveg"&&!i.veg);
       const okC=cat==="all"||i.category===cat;
-      return okF&&okC;
+      const okQ=!q||i.name.toLowerCase().includes(q);
+      return okF&&okC&&okQ;
     });
-  },[filter,cat]);
+  },[filter,cat,query]);
 
   const count=Object.values(cart).reduce((s,x)=>s+x,0);
   const total=items.reduce((s,i)=>s+(cart[i.id]?cart[i.id]*i.price:0),0);
@@ -66,6 +69,14 @@ const NonVegIcon = () => (
       <header className="py-4">
         <div className="font-bold text-[22px]">HoyChoy Café</div>
         <div className="text-muted text-xs mt-1">Savor the fusion of flavors</div>
+        <div className="mt-3">
+          <input
+            className="w-full bg-[#111] border border-[#222] rounded-xl p-2"
+            placeholder="Search items"
+            value={query}
+            onChange={e=>setQuery(e.target.value)}
+          />
+        </div>
         <div className="flex gap-2 mt-3">
           {['all','veg','nonveg'].map(f=> (
             <button key={f} onClick={()=>setFilter(f)} className={`chip ${filter===f?'chip-active':''} ${f==='veg'?'text-success':f==='nonveg'?'text-error':''}`} data-filter={f}>
