@@ -5,14 +5,14 @@ import Confirm from "./components/Confirm.jsx";
 import Success from "./components/Success.jsx";
 import { OWNER_PHONE } from "./config.js";
 import { generateOrderId } from "./utils/order.js";
-import data from "./data/menu.json";
+import { getMenu } from "./utils/menu.js";
 import { uploadToFileIO } from "./utils/upload.js";
 
 export default function App(){
   const [view,setView]=useState("menu");
   const [cart,setCart]=useState(()=>{try{const r=localStorage.getItem("hc_cart");return r?JSON.parse(r):{};}catch{return {}}});
   const [cust,setCust]=useState(null);
-  const items=useMemo(()=>Object.entries(cart).map(([id,q])=>{const it=data.items.find(x=>x.id===id);return it?{item:it,qty:q}:null;}).filter(Boolean),[cart]);
+  const items=useMemo(()=>{const menu=getMenu();return Object.entries(cart).map(([id,q])=>{const it=menu.items.find(x=>x.id===id);return it?{item:it,qty:q}:null;}).filter(Boolean);},[cart]);
   const total=items.reduce((s,x)=>s+x.item.price*x.qty,0);
 
   useEffect(()=>{localStorage.setItem("hc_cart",JSON.stringify(cart));},[cart]);
@@ -22,7 +22,6 @@ export default function App(){
   function toConfirm(payload){setCust(payload);setView("confirm");}
   async function toSuccess(){
     const orderId=generateOrderId();
-    const shareSupported = (!!navigator.canShare && navigator.canShare({files: cust.screenshot?[cust.screenshot]:[]}));
     let lines=[];
     lines.push("🟢 *New Order - HoyChoy Café*");
     lines.push("");
@@ -44,38 +43,25 @@ export default function App(){
     lines.push("(Tap to open in Maps)");
     lines.push("");
     lines.push("💳 *UPI Payment:*");
-    lines.push(shareSupported?"Screenshot attached":"No screenshot attached");
     lines.push("");
     lines.push(`🆔 *Order ID:* #${orderId}`);
     lines.push("---");
     lines.push("_Please verify payment and confirm order_");
-    let screenshotShared=false;
-    try{
-      if(shareSupported){
-        await navigator.share({
-          title:"Payment Confirmation - HoyChoy Café",
-          text: lines.join("\n"),
-          files: cust.screenshot?[cust.screenshot]:[]
-        });
-        screenshotShared=true;
-      }else{
-        // Try uploading the screenshot to a free host and include the link in the WhatsApp message
-        if(cust.screenshot){
-          const link = await uploadToFileIO(cust.screenshot);
-          const note = link ? `📎 Screenshot: ${link}` : "📎 Screenshot upload failed";
-          const withLink = lines.concat([note]).join("\n");
-          const url=`https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent(withLink)}`;
-          window.open(url,"_blank");
-        } else {
-          const withNote = lines.concat(["📎 Screenshot not attached via link", "Please attach the screenshot in WhatsApp chat"]).join("\n");
-          const url=`https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent(withNote)}`;
-          window.open(url,"_blank");
-        }
+    let noteLine = null;
+    if(cust.screenshot){
+      try{
+        const timeout = new Promise(resolve=>setTimeout(()=>resolve(null), 4000));
+        const link = await Promise.race([uploadToFileIO(cust.screenshot), timeout]);
+        noteLine = link ? `📎 Screenshot: ${link}` : "📎 Screenshot will be shared in chat";
+      }catch{
+        noteLine = "📎 Screenshot will be shared in chat";
       }
-    }catch(e){
-      const url=`https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent(lines.join("\n"))}`;
-      window.open(url,"_blank");
+    }else{
+      noteLine = "📎 Screenshot not provided";
     }
+    const msg = lines.concat([noteLine]).join("\n");
+    const url = `https://api.whatsapp.com/send?phone=${OWNER_PHONE}&text=${encodeURIComponent(msg)}`;
+    window.location.href = url;
     setView("success");
     setCust(c=>({...c,orderId}));
   }
