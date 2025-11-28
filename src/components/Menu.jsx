@@ -67,8 +67,7 @@ const NonVegIcon = () => (
   return (
     <main className="max-w-[600px] mx-auto px-4 pb-40">
       <header className="py-4">
-        <div className="flex items-center gap-2"><img src="https://iili.io/fBpQXYx.md.png" alt="HoyChoy™" className="w-12 h-12"/></div>
-        <div className="text-muted text-xs mt-1">Golpo , Ghorua Flavor & Good Vibes</div>
+        <div className="flex items-center gap-2"><span className="text-2xl font-bold">HoyChoy™ Café</span></div>
         <div className="mt-3">
           <input
             className="w-full bg-[#111] border border-[#222] rounded-xl p-2"
