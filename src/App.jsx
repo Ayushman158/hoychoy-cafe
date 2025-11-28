@@ -4,7 +4,7 @@ import Checkout from "./components/Checkout.jsx";
 import Confirm from "./components/Confirm.jsx";
 import Success from "./components/Success.jsx";
 import Splash from "./components/Splash.jsx";
-import { OWNER_PHONE } from "./config.js";
+import { OWNER_PHONE, MERCHANT_NAME } from "./config.js";
 import { generateOrderId } from "./utils/order.js";
 import { getMenu } from "./utils/menu.js";
 import { uploadToFileIO } from "./utils/upload.js";
@@ -25,7 +25,7 @@ export default function App(){
   async function toSuccess(){
     const orderId=generateOrderId();
     let lines=[];
-    lines.push("🟢 *New Order - HoyChoy Café*");
+    lines.push(`🟢 *New Order - ${MERCHANT_NAME}*`);
     lines.push("");
     lines.push("📋 *Order Details:*");
     items.forEach(({item,qty})=>lines.push(`• ${item.name} ×${qty} - ₹${item.price}`));
