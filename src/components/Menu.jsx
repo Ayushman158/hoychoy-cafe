@@ -36,8 +36,8 @@ function img(id){
 }
 
 export default function Menu({cart, setCart, onProceed}){
-  const [filter,setFilter]=useState("all");
-  const [cat,setCat]=useState("all");
+  const [filters,setFilters]=useState([]);
+  const [cat,setCat]=useState(null);
   const [justAdded,setJustAdded]=useState(null);
   const [query,setQuery]=useState("");
   const VegIcon = () => (
@@ -81,22 +81,29 @@ const NonVegIcon = () => (
   </svg>
 );
   const base=getMenu();
-  const categories=["all",...(base.categories||[])];
+  const categories=[
+    ...Array.from(new Set((base.categories||[]).map(c=>
+      c.startsWith("Appetizers")?"Appetizers":c
+    )))
+  ];
   const bestSellers=useMemo(()=>{
     let list=(base.items||[]).filter(i=>BEST_SELLER_IDS.includes(i.id));
-    if(filter==='veg') list=list.filter(i=>i.veg);
-    if(filter==='nonveg') list=list.filter(i=>!i.veg);
+    if(filters.length){
+      list=list.filter(i=> (filters.includes('veg')&&i.veg) || (filters.includes('nonveg')&&!i.veg));
+    }
     return list;
-  },[filter]);
+  },[filters]);
   const items=useMemo(()=>{
     const q=query.trim().toLowerCase();
     return (base.items||[]).filter(i=>{
-      const okF=filter==="all"||(filter==="veg"&&i.veg)||(filter==="nonveg"&&!i.veg)||(filter==="bestseller"&&BEST_SELLER_IDS.includes(i.id));
-      const okC=cat==="all"||i.category===cat;
+      const okF= !filters.length || ((filters.includes('veg')&&i.veg) || (filters.includes('nonveg')&&!i.veg));
+      const okC= !cat || i.category===cat || (
+        cat==="Appetizers" && (i.category==="Appetizers (Veg)"||i.category==="Appetizers (Non-Veg)")
+      );
       const okQ=!q||i.name.toLowerCase().includes(q);
       return okF&&okC&&okQ;
     });
-  },[filter,cat,query]);
+  },[filters,cat,query]);
 
   const count=Object.values(cart).reduce((s,x)=>s+x,0);
   const total=items.reduce((s,i)=>s+(cart[i.id]?cart[i.id]*i.price:0),0);
@@ -124,19 +131,29 @@ const NonVegIcon = () => (
             onChange={e=>setQuery(e.target.value)}
           />
         </div>
-        <div className="flex gap-2 mt-3">
-          {['all','veg','nonveg'].map(f=> (
-            <button key={f} onClick={()=>setFilter(f)} className={`chip ${filter===f?'chip-active':''} ${f==='veg'?'text-success':f==='nonveg'?'text-error':''}`} data-filter={f}>
-              <span className="inline-flex items-center gap-2">
-                {f==='veg'?<VegIcon />:f==='nonveg'?<NonVegIcon />:null}
-                {f==='all'?"All":f==='veg'?"Veg":"Non-Veg"}
-              </span>
-            </button>
-          ))}
+        <div className="flex gap-2 mt-3 items-center">
+          {['veg','nonveg'].map(f=>{
+            const active = filters.includes(f);
+            const toggle=()=>setFilters(s=> active? s.filter(x=>x!==f) : [...s,f]);
+            return (
+              <button key={f} onClick={toggle} className={`chip ${active?'chip-active':''} ${f==='veg'?'text-success':f==='nonveg'?'text-error':''}`} data-filter={f}>
+                <span className="inline-flex items-center gap-2">
+                  {f==='veg'?<VegIcon />:<NonVegIcon />}
+                  <span>{f==='veg'?"Veg":"Non-Veg"}</span>
+                  {active && <span>×</span>}
+                </span>
+              </button>
+            );
+          })}
         </div>
         <div className="flex gap-2 overflow-auto mt-3">
           {categories.map(c=> (
-            <button key={c} onClick={()=>setCat(c)} className={`chip ${cat===c?'chip-active':''}`}>{c}</button>
+            <button key={c} onClick={()=>setCat(cat===c?null:c)} className={`chip ${cat===c?'chip-active':''}`}>
+              <span className="inline-flex items-center gap-2">
+                <span>{c}</span>
+                {cat===c && <span>×</span>}
+              </span>
+            </button>
           ))}
         </div>
         <div className="mt-4">
