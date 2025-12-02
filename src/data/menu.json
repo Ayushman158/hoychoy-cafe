@@ -100,6 +100,9 @@
     {"id":"dragon_chopsuey_veg","name":"Dragon Chopsuey (Veg)","price":279,"veg":true,"category":"Pasta & Chopsuey","available":true},
     {"id":"dragon_chopsuey_chicken","name":"Dragon Chopsuey (Chicken)","price":319,"veg":false,"category":"Pasta & Chopsuey","available":true},
 
+    {"id":"pesto_pasta_veg","name":"Pesto Pasta (Veg)","price":399,"veg":true,"category":"Pasta & Chopsuey","available":true},
+    {"id":"green_mafia","name":"The Green Mafia","price":399,"veg":true,"category":"Pasta & Chopsuey","available":true},
+
     {"id":"veg_fried_koito","name":"Veg Fried Koito","price":249,"veg":true,"category":"Koito","available":true},
     {"id":"egg_fried_koito","name":"Egg Fried Koito","price":269,"veg":false,"category":"Koito","available":true},
     {"id":"chicken_fried_koito","name":"Chicken Fried Koito","price":279,"veg":false,"category":"Koito","available":true},
@@ -117,6 +120,8 @@
     {"id":"grilled_teriyaki_chicken","name":"Grilled Teriyaki Chicken","price":389,"veg":false,"category":"Sizzlers & Continental","available":true},
     {"id":"grilled_chicken_lemon_butter","name":"Grilled Chicken with Lemon Butter Sauce","price":389,"veg":false,"category":"Sizzlers & Continental","available":true},
     {"id":"prawns_garlic_butter","name":"Prawns Garlic Butter with Mashed Potato","price":399,"veg":false,"category":"Sizzlers & Continental","available":true},
+
+    {"id":"red_velvet_chicken","name":"Red Velvet Chicken","price":359,"veg":false,"category":"Sizzlers & Continental","available":true},
 
     {"id":"chicken_nuggets","name":"Chicken Nuggets","price":299,"veg":false,"category":"Nuggets","available":true},
     {"id":"chicken_nuggets_sauce","name":"Chicken Nuggets (with hot sauce & spicy red sauce)","price":329,"veg":false,"category":"Nuggets","available":true},
@@ -185,6 +190,8 @@
     {"id":"sweet_corn_soup","name":"Sweet Corn Soup","price":119,"veg":true,"category":"Soup","available":true},
     {"id":"chicken_hot_sour_soup","name":"Chicken Hot & Sour Soup","price":149,"veg":false,"category":"Soup","available":true},
     {"id":"clear_soup","name":"Clear Soup","price":79,"veg":true,"category":"Soup","available":true},
+
+    {"id":"thukpa_chicken","name":"Thukpa (Chicken)","price":189,"veg":false,"category":"Soup","available":true},
 
     {"id":"veg_roll","name":"Veg Roll","price":99,"veg":true,"category":"Rolls","available":true},
     {"id":"veg_cheese_roll","name":"Veg Cheese Roll","price":109,"veg":true,"category":"Rolls","available":true},

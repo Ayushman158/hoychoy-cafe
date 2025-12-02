@@ -5,14 +5,24 @@ const BEST_SELLER_IDS = [
   "octopus",
   "chicken_meifoon",
   "grilled_teriyaki_chicken",
-  "penne_arrabbiata_veg"
+  "penne_arrabbiata_veg",
+  "pesto_pasta_veg",
+  "green_mafia",
+  "red_velvet_chicken",
+  "grilled_fish_lemon_butter",
+  "thukpa_chicken"
 ];
 
 const IMAGE_MAP = {
   octopus: "https://iili.io/fzFX0ge.jpg",
   chicken_meifoon: "https://iili.io/fzFVbFn.jpg",
   grilled_teriyaki_chicken: "https://iili.io/fzFhiwx.jpg",
-  penne_arrabbiata_veg: "https://iili.io/fzFGgiF.jpg"
+  penne_arrabbiata_veg: "https://iili.io/fzFGgiF.jpg",
+  pesto_pasta_veg: "https://iili.io/fzCIdQa.jpg",
+  green_mafia: "https://iili.io/fzCulLu.jpg",
+  red_velvet_chicken: "https://iili.io/fzCuypS.jpg",
+  grilled_fish_lemon_butter: "https://iili.io/fzCR9cv.jpg",
+  thukpa_chicken: "https://iili.io/fzCRDe2.jpg"
 };
 
 function img(id){
@@ -93,7 +103,14 @@ const NonVegIcon = () => (
   return (
     <main className="max-w-[600px] mx-auto px-4 pb-40">
       <header className="py-4">
-        <div className="flex items-center gap-2"><span className="text-2xl font-bold">HoyChoy Café</span></div>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-2xl font-extrabold">
+            <span>Hoy</span>
+            <span className="text-[#f5c84a]" style={{textShadow:"0 0 22px rgba(245,200,74,0.6), 0 0 8px rgba(245,200,74,0.5)"}}>Choy</span>
+            <span> Café</span>
+          </span>
+          <a href="/about" className="px-3 py-1 rounded-lg border border-[#222] text-[#f5c84a] hover:bg-[#1a1a1a]">About</a>
+        </div>
         <div className="mt-3">
           <input
             className="w-full bg-[#111] border border-[#222] rounded-xl p-2"
@@ -126,15 +143,22 @@ const NonVegIcon = () => (
                   {img(item.id) && (
                     <img src={img(item.id)} alt={item.name} className="w-full h-40 object-cover" />
                   )}
-                  <div className="absolute left-2 top-2 bg-black/70 text-white text-sm px-2 py-1 rounded">
-                    {item.name} · ₹{item.price}
+                  <div className="absolute left-2 right-2 top-2 flex items-center">
+                    <div className="bg-black/70 text-white text-sm px-2 py-1 rounded inline-flex items-center gap-2">
+                      {item.veg?<VegIcon />:<NonVegIcon />}
+                      <span>{item.name}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="p-2 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-2 font-semibold">{item.veg?<VegIcon />:<NonVegIcon />}</span>
-                  <button disabled={!item.available} className={`btn ${item.available?'btn-primary':''} ${item.available?'':'btn-disabled'}`} onClick={()=>add(item.id)}>
+                  <span className="font-semibold">₹{item.price}</span>
+                  <button disabled={!item.available} className={`btn ${item.available?'btn-primary':''} ${item.available?'':'btn-disabled'} mt-1`} onClick={()=>add(item.id)}>
                     {item.available?(justAdded===item.id?"✓ Added":"Add"):"Out"}
                   </button>
+                </div>
+                <div className="px-2 pb-2 flex items-center gap-2 text-xs">
+                  <span className={`inline-block w-2 h-2 rounded-full ${item.available?'bg-success':'bg-error'}`}></span>
+                  <span>{item.available?"Available":"Out of Stock"}</span>
                 </div>
               </div>
             ))}
@@ -165,13 +189,18 @@ const NonVegIcon = () => (
         ))}
       </ul>
 
-      <div className="fixed right-3 bottom-24 bg-primary text-black rounded-full px-3 py-2 font-bold flex items-center gap-2 shadow-xl">
+      <button
+        type="button"
+        onClick={onProceed}
+        disabled={count===0}
+        className={`fixed right-3 bottom-32 z-50 bg-primary text-black rounded-full px-3 py-2 font-bold flex items-center gap-2 shadow-xl ${count===0?'opacity-60 cursor-not-allowed':''}`}
+      >
         <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/>
           <path d="M3 3h2l3 12h10l3-8H6"/>
         </svg>
         <span>{count}</span>
-      </div>
+      </button>
       <div className="fixed left-0 right-0 bottom-0 bg-gradient-to-b from-black/20 to-bg p-3 border-t border-[#222]">
         <div className="row font-bold">
           <span>Total</span><span className="price">₹{Object.entries(cart).reduce((s,[id,q])=>{const it=(base.items||[]).find(x=>x.id===id);return s+(it?it.price*q:0);},0)}</span>

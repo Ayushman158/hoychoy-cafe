@@ -9,6 +9,8 @@ import Privacy from "./components/Privacy.jsx";
 import Terms from "./components/Terms.jsx";
 import RefundCancellation from "./components/RefundCancellation.jsx";
 import Shipping from "./components/Shipping.jsx";
+import About from "./components/About.jsx";
+import Footer from "./components/Footer.jsx";
 import { OWNER_PHONE, MERCHANT_NAME } from "./config.js";
 import { generateOrderId } from "./utils/order.js";
 import { getMenu, fetchMenuRemoteAndCache } from "./utils/menu.js";
@@ -33,7 +35,7 @@ export default function App(){
       setView('payment');
     }
     const p = window.location.pathname.replace(/^\/+/,"");
-    if(['privacy','terms','refund','shipping'].includes(p)){
+    if(['privacy','terms','refund','shipping','about'].includes(p)){
       setPolicy(p);
       setView('policy');
     }
@@ -79,7 +81,10 @@ export default function App(){
   function successBack(){setCart({});localStorage.removeItem("hc_cart");setView("menu");}
 
   if(view==="splash") return <Splash onContinue={skipSplash} />;
-  if(view==="menu") return <Menu cart={cart} setCart={setCart} onProceed={proceed}/>;
+  if(view==="menu") return (<>
+    <Menu cart={cart} setCart={setCart} onProceed={proceed}/>
+    <Footer />
+  </>);
   if(view==="checkout") return <Checkout cart={cart} setCart={setCart} onBack={backToMenu} onSubmit={toConfirm}/>;
   if(view==="confirm") return <Confirm name={cust.name} phone={cust.phone} total={total} onBack={()=>setView("checkout")} onConfirm={toSuccess}/>;
   if(view==="payment") return <PaymentStatus />;
@@ -88,7 +93,11 @@ export default function App(){
     if(policy==='privacy') return <Privacy onBack={back}/>;
     if(policy==='terms') return <Terms onBack={back}/>;
     if(policy==='refund') return <RefundCancellation onBack={back}/>;
-    return <Shipping onBack={back}/>;
+    if(policy==='shipping') return <Shipping onBack={back}/>;
+    return (<>
+      <About onBack={back}/>
+      <Footer />
+    </>);
   }
   return <Success orderId={cust.orderId} summary={{name:cust.name,phone:cust.phone,address:cust.address,items,total}} onBack={successBack}/>;
 }
