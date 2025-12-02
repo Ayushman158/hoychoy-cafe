@@ -17,7 +17,7 @@ export default function Splash({onContinue}){
           <span className="text-[#f5c84a]" style={glow}>Choy</span>
           <span className="text-white"> Café</span>
         </div>
-        <div className="mt-3 text-sm md:text-base text-[#cfcfcf]">Savor the fusion of flavors</div>
+        <div className="mt-3 text-sm md:text-base text-[#cfcfcf]">Golpo, Ghorua Flavour & Good Vibes</div>
       </div>
 
       <div className="mt-6 flex items-center gap-2">
