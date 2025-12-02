@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import data from "../data/menu.json";
-import { UPI_ID, MERCHANT_NAME } from "../config";
+import { UPI_ID, MERCHANT_NAME, BACKEND_URL } from "../config";
+import { generateOrderId } from "../utils/order";
 import { buildUpiIntent } from "../utils/upi";
 
 export default function Checkout({cart, setCart, onBack, onSubmit}){
@@ -9,11 +10,10 @@ export default function Checkout({cart, setCart, onBack, onSubmit}){
   const [name,setName]=useState("");
   const [phone,setPhone]=useState("");
   const [address,setAddress]=useState("");
-  const [screenshot,setScreenshot]=useState(null);
   const [geo,setGeo]=useState(null);
   const [manualLink,setManualLink]=useState("");
   const [geoError,setGeoError]=useState("");
-  const valid=name.trim()&&phone.replace(/\D/g,"").length===10&&address.trim()&&!!screenshot&&((!!geo)||isValidManualLink(manualLink));
+  const valid=name.trim()&&phone.replace(/\D/g,"").length===10&&address.trim()&&((!!geo)||isValidManualLink(manualLink));
   const upiIntent = buildUpiIntent(UPI_ID, total, MERCHANT_NAME, "Order at HoyChoy Café", `HC-${Date.now()}`);
   const [copied,setCopied]=useState(false);
 
@@ -44,7 +44,25 @@ export default function Checkout({cart, setCart, onBack, onSubmit}){
     try{const u=new URL(s);return /maps\.google\.com|google\.com\/maps/.test(u.hostname+u.pathname);}catch{return false}
   }
 
-  function submit(){onSubmit({name,phone,address,screenshot,geo,manualLink:manualLink.trim(),total,items});}
+  function submit(){onSubmit({name,phone,address,geo,manualLink:manualLink.trim(),total,items});}
+
+  async function payNow(){
+    const orderId = `HC-${generateOrderId()}-${Date.now()}`;
+    const redirectUrl = `${window.location.origin}/?merchantTransactionId=${orderId}`;
+    const callbackUrl = `${BACKEND_URL}/api/payment-callback`;
+    const resp = await fetch(`${BACKEND_URL}/api/initiate-payment`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({amount:total, orderId, customerPhone:phone, customerName:name, redirectUrl, callbackUrl})
+    });
+    const data = await resp.json();
+    if(!resp.ok || !data.redirectUrl){
+      alert('Could not start PhonePe payment. Please try again.');
+      return;
+    }
+    localStorage.setItem('pp_last_txn', orderId);
+    localStorage.setItem('hc_cust', JSON.stringify({name,phone,address,geo,manualLink:manualLink.trim(),items,total}));
+    window.location.href = data.redirectUrl;
+  }
 
   return (
     <section className="max-w-[600px] mx-auto px-4">
@@ -87,25 +105,14 @@ export default function Checkout({cart, setCart, onBack, onSubmit}){
       </div>
 
       <div className="card mt-3">
-        <div className="section-title">UPI Payment</div>
-        <div className="flex flex-col items-center gap-2 bg-[#111] border border-dashed border-[#333] rounded-xl p-3">
-          <img alt="UPI QR" className="w-56 h-56 bg-white" src={`https://chart.googleapis.com/chart?cht=qr&chs=220x220&chl=${encodeURIComponent(upiIntent)}`} />
-          <div className="text-muted text-xs">Scan to Pay ₹{total}</div>
-        </div>
-        <div className="row mt-2"><span className="text-primary font-bold">{UPI_ID}</span><button className="text-primary" onClick={()=>{navigator.clipboard.writeText(UPI_ID);setCopied(true);setTimeout(()=>setCopied(false),1500);}}>Copy</button></div>
-        {copied && <div className="text-success text-xs mt-1">UPI ID copied</div>}
-        <button className="btn mt-2" onClick={()=>{
-          const url = `https://chart.googleapis.com/chart?cht=qr&chs=220x220&chl=${encodeURIComponent(upiIntent)}`;
-          const a=document.createElement('a');a.download='upi-qr.png';a.href=url;a.target='_blank';a.click();
-        }}>Download QR Code</button>
-        <label className="flex flex-col gap-1 my-2"><span>Upload Payment Screenshot *</span>
-          <input className="bg-[#111] border border-[#222] rounded-xl p-2" type="file" accept="image/*" onChange={e=>{const f=e.target.files?.[0];setScreenshot(f||null);}} />
-          {screenshot && <img alt="Preview" className="mt-2 w-32 h-32 object-cover rounded-lg border border-[#333]" src={URL.createObjectURL(screenshot)} />}
-          {!screenshot && <span className="text-error text-xs mt-1">Payment screenshot required</span>}
-        </label>
+        <div className="section-title">PhonePe Payment</div>
+        <button className={`btn btn-primary w-full`} onClick={payNow}>Pay ₹{total}</button>
+        <div className="text-muted text-xs mt-2">You will be redirected to PhonePe to complete payment.</div>
       </div>
-
-      <button className={`btn btn-primary w-full mt-4 mb-6 ${!valid?'btn-disabled':''}`} disabled={!valid} onClick={submit}>Submit Order</button>
+      <div className="mt-4 mb-6">
+        <button className={`btn w-full btn-disabled`} disabled>Submit Order (enabled after payment)</button>
+        <div className="text-muted text-xs mt-2">Complete PhonePe payment to submit your order.</div>
+      </div>
     </section>
   );
 }

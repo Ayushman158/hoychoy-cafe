@@ -1,5 +1,29 @@
 import React, { useEffect, useMemo, useState } from "react";
-import data from "../data/menu.json";
+import { getMenu } from "../utils/menu.js";
+
+const BEST_SELLER_IDS = [
+  "octopus",
+  "chicken_meifoon",
+  "grilled_teriyaki_chicken",
+  "penne_arrabbiata_veg"
+];
+
+const IMAGE_MAP = {
+  octopus: "https://iili.io/fzFX0ge.jpg",
+  chicken_meifoon: "https://iili.io/fzFVbFn.jpg",
+  grilled_teriyaki_chicken: "https://iili.io/fzFhiwx.jpg",
+  penne_arrabbiata_veg: "https://iili.io/fzFGgiF.jpg"
+};
+
+function img(id){
+  try{
+    const k = "hc_img_"+id;
+    const v = localStorage.getItem(k);
+    return v || IMAGE_MAP[id] || null;
+  }catch(e){
+    return IMAGE_MAP[id] || null;
+  }
+}
 
 export default function Menu({cart, setCart, onProceed}){
   const [filter,setFilter]=useState("all");
@@ -46,11 +70,13 @@ const NonVegIcon = () => (
     />
   </svg>
 );
-  const categories=["all",...data.categories];
+  const base=getMenu();
+  const categories=["all",...(base.categories||[])];
+  const bestSellers=(base.items||[]).filter(i=>BEST_SELLER_IDS.includes(i.id));
   const items=useMemo(()=>{
     const q=query.trim().toLowerCase();
-    return data.items.filter(i=>{
-      const okF=filter==="all"||(filter==="veg"&&i.veg)||(filter==="nonveg"&&!i.veg);
+    return (base.items||[]).filter(i=>{
+      const okF=filter==="all"||(filter==="veg"&&i.veg)||(filter==="nonveg"&&!i.veg)||(filter==="bestseller"&&BEST_SELLER_IDS.includes(i.id));
       const okC=cat==="all"||i.category===cat;
       const okQ=!q||i.name.toLowerCase().includes(q);
       return okF&&okC&&okQ;
@@ -67,7 +93,7 @@ const NonVegIcon = () => (
   return (
     <main className="max-w-[600px] mx-auto px-4 pb-40">
       <header className="py-4">
-        <div className="flex items-center gap-2"><span className="text-2xl font-bold">HoyChoy™ Café</span></div>
+        <div className="flex items-center gap-2"><span className="text-2xl font-bold">HoyChoy Café</span></div>
         <div className="mt-3">
           <input
             className="w-full bg-[#111] border border-[#222] rounded-xl p-2"
@@ -81,7 +107,7 @@ const NonVegIcon = () => (
             <button key={f} onClick={()=>setFilter(f)} className={`chip ${filter===f?'chip-active':''} ${f==='veg'?'text-success':f==='nonveg'?'text-error':''}`} data-filter={f}>
               <span className="inline-flex items-center gap-2">
                 {f==='veg'?<VegIcon />:f==='nonveg'?<NonVegIcon />:null}
-                {f==='all'?'All':f==='veg'?'Veg':'Non-Veg'}
+                {f==='all'?"All":f==='veg'?"Veg":"Non-Veg"}
               </span>
             </button>
           ))}
@@ -91,17 +117,45 @@ const NonVegIcon = () => (
             <button key={c} onClick={()=>setCat(c)} className={`chip ${cat===c?'chip-active':''}`}>{c}</button>
           ))}
         </div>
+        <div className="mt-4">
+          <div className="text-xl font-bold">Best Sellers</div>
+          <div className="mt-2 overflow-x-auto flex gap-3 snap-x snap-mandatory pb-2">
+            {bestSellers.map(item=> (
+              <div key={item.id} className="min-w-[260px] rounded-xl border border-[#222] bg-[#111] overflow-hidden snap-start">
+                <div className="relative">
+                  {img(item.id) && (
+                    <img src={img(item.id)} alt={item.name} className="w-full h-40 object-cover" />
+                  )}
+                  <div className="absolute left-2 top-2 bg-black/70 text-white text-sm px-2 py-1 rounded">
+                    {item.name} · ₹{item.price}
+                  </div>
+                </div>
+                <div className="p-2 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-2 font-semibold">{item.veg?<VegIcon />:<NonVegIcon />}</span>
+                  <button disabled={!item.available} className={`btn ${item.available?'btn-primary':''} ${item.available?'':'btn-disabled'}`} onClick={()=>add(item.id)}>
+                    {item.available?(justAdded===item.id?"✓ Added":"Add"):"Out"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </header>
 
       <ul className="flex flex-col gap-2">
         {items.map(item=> (
           <li key={item.id} className="card flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <div className="font-semibold flex items-center gap-2">{item.name}{item.veg?<VegIcon />:<NonVegIcon />}</div>
-              <div className="text-muted">₹{item.price}</div>
-              <div className="flex items-center gap-2 text-xs">
-                <span className={`inline-block w-2 h-2 rounded-full ${item.available?'bg-success':'bg-error'}`}></span>
-                <span>{item.available?"Available":"Out of Stock"}</span>
+            <div className="flex items-center gap-3">
+              {img(item.id) && (
+                <img src={img(item.id)} alt={item.name} className="w-20 h-20 rounded-lg object-cover" />
+              )}
+              <div className="flex flex-col gap-1">
+                <div className="font-semibold flex items-center gap-2">{item.name}{item.veg?<VegIcon />:<NonVegIcon />}</div>
+                <div className="text-muted">₹{item.price}</div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className={`inline-block w-2 h-2 rounded-full ${item.available?'bg-success':'bg-error'}`}></span>
+                  <span>{item.available?"Available":"Out of Stock"}</span>
+                </div>
               </div>
             </div>
             <button disabled={!item.available} className={`btn ${item.available?'btn-primary':''} ${item.available?'':'btn-disabled'}`} onClick={()=>add(item.id)}>
@@ -120,7 +174,7 @@ const NonVegIcon = () => (
       </div>
       <div className="fixed left-0 right-0 bottom-0 bg-gradient-to-b from-black/20 to-bg p-3 border-t border-[#222]">
         <div className="row font-bold">
-          <span>Total</span><span className="price">₹{Object.entries(cart).reduce((s,[id,q])=>{const it=data.items.find(x=>x.id===id);return s+(it?it.price*q:0);},0)}</span>
+          <span>Total</span><span className="price">₹{Object.entries(cart).reduce((s,[id,q])=>{const it=(base.items||[]).find(x=>x.id===id);return s+(it?it.price*q:0);},0)}</span>
         </div>
         <button className={`btn btn-primary w-full mt-2 ${count===0?'btn-disabled':''}`} disabled={count===0} onClick={onProceed}>Proceed to Checkout</button>
       </div>

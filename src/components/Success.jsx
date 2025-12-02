@@ -35,8 +35,8 @@ export default function Success({orderId,summary,onBack}){
   return (
     <section className="max-w-[600px] mx-auto px-4">
       <div className="mt-5"><CheckCircleIcon /></div>
-      <div className="text-center font-bold text-2xl mt-2">Payment Submitted Successfully</div>
-      <div className="text-center text-muted text-sm mt-2">Your order has been received. Our team will verify your payment and confirm via WhatsApp or call shortly.</div>
+      <div className="text-center font-bold text-2xl mt-2">Order Placed Successfully</div>
+      <div className="text-center text-muted text-sm mt-2">Payment will be verified automatically via PhonePe gateway. We’ll notify you when confirmed.</div>
       <div className="text-center mt-2">Order ID: <span className="text-primary font-bold">#{orderId}</span></div>
       <div className="card mt-4">
         <div className="section-title">Order Summary</div>

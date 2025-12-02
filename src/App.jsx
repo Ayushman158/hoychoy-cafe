@@ -3,20 +3,41 @@ import Menu from "./components/Menu.jsx";
 import Checkout from "./components/Checkout.jsx";
 import Confirm from "./components/Confirm.jsx";
 import Success from "./components/Success.jsx";
+import PaymentStatus from "./components/PaymentStatus.jsx";
 import Splash from "./components/Splash.jsx";
+import Privacy from "./components/Privacy.jsx";
+import Terms from "./components/Terms.jsx";
+import RefundCancellation from "./components/RefundCancellation.jsx";
+import Shipping from "./components/Shipping.jsx";
 import { OWNER_PHONE, MERCHANT_NAME } from "./config.js";
 import { generateOrderId } from "./utils/order.js";
-import { getMenu } from "./utils/menu.js";
-import { uploadToFileIO } from "./utils/upload.js";
+import { getMenu, fetchMenuRemoteAndCache } from "./utils/menu.js";
 
 export default function App(){
   const [view,setView]=useState("splash");
+  const [returnTxn,setReturnTxn]=useState(null);
+  const [policy,setPolicy]=useState(null);
   const [cart,setCart]=useState(()=>{try{const r=localStorage.getItem("hc_cart");return r?JSON.parse(r):{};}catch{return {}}});
   const [cust,setCust]=useState(null);
   const items=useMemo(()=>{const menu=getMenu();return Object.entries(cart).map(([id,q])=>{const it=menu.items.find(x=>x.id===id);return it?{item:it,qty:q}:null;}).filter(Boolean);},[cart]);
   const total=items.reduce((s,x)=>s+x.item.price*x.qty,0);
 
   useEffect(()=>{localStorage.setItem("hc_cart",JSON.stringify(cart));},[cart]);
+
+  useEffect(()=>{ fetchMenuRemoteAndCache().catch(()=>{}); },[]);
+  useEffect(()=>{
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('merchantTransactionId');
+    if(id){
+      setReturnTxn(id);
+      setView('payment');
+    }
+    const p = window.location.pathname.replace(/^\/+/,"");
+    if(['privacy','terms','refund','shipping'].includes(p)){
+      setPolicy(p);
+      setView('policy');
+    }
+  },[]);
 
   function proceed(){setView("checkout");}
   function backToMenu(){setView("menu");}
@@ -44,24 +65,11 @@ export default function App(){
     lines.push(glink);
     lines.push("(Tap to open in Maps)");
     lines.push("");
-    lines.push("💳 *UPI Payment:*");
+    lines.push("💳 *Payment: PhonePe UPI* (auto verification)");
     lines.push("");
     lines.push(`🆔 *Order ID:* #${orderId}`);
     lines.push("---");
-    lines.push("_Please verify payment and confirm order_");
-    let noteLine = null;
-    if(cust.screenshot){
-      try{
-        const timeout = new Promise(resolve=>setTimeout(()=>resolve(null), 4000));
-        const link = await Promise.race([uploadToFileIO(cust.screenshot), timeout]);
-        noteLine = link ? `📎 Screenshot: ${link}` : "📎 Screenshot will be shared in chat";
-      }catch{
-        noteLine = "📎 Screenshot will be shared in chat";
-      }
-    }else{
-      noteLine = "📎 Screenshot not provided";
-    }
-    const msg = lines.concat([noteLine]).join("\n");
+    const msg = lines.join("\n");
     const url = `https://api.whatsapp.com/send?phone=${OWNER_PHONE}&text=${encodeURIComponent(msg)}`;
     window.location.href = url;
     setView("success");
@@ -74,5 +82,13 @@ export default function App(){
   if(view==="menu") return <Menu cart={cart} setCart={setCart} onProceed={proceed}/>;
   if(view==="checkout") return <Checkout cart={cart} setCart={setCart} onBack={backToMenu} onSubmit={toConfirm}/>;
   if(view==="confirm") return <Confirm name={cust.name} phone={cust.phone} total={total} onBack={()=>setView("checkout")} onConfirm={toSuccess}/>;
+  if(view==="payment") return <PaymentStatus />;
+  if(view==="policy"){
+    const back=()=>{setPolicy(null);setView('menu');window.history.replaceState({},'', '/');};
+    if(policy==='privacy') return <Privacy onBack={back}/>;
+    if(policy==='terms') return <Terms onBack={back}/>;
+    if(policy==='refund') return <RefundCancellation onBack={back}/>;
+    return <Shipping onBack={back}/>;
+  }
   return <Success orderId={cust.orderId} summary={{name:cust.name,phone:cust.phone,address:cust.address,items,total}} onBack={successBack}/>;
 }

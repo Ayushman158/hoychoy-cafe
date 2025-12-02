@@ -1,4 +1,5 @@
 import data from "../data/menu.json";
+import { supabase } from "./supabase";
 
 const KEY = "hc_menu_overrides";
 
@@ -14,14 +15,33 @@ export function resetMenuOverrides(){
   localStorage.removeItem(KEY);
 }
 
+const REMOTE_KEY = "hc_menu_remote";
+function loadRemote(){try{ return JSON.parse(localStorage.getItem(REMOTE_KEY)||"null"); }catch{ return null; }}
+function saveRemote(menu){localStorage.setItem(REMOTE_KEY, JSON.stringify(menu));}
+
+export async function fetchMenuRemoteAndCache(){
+  try{
+    if(!supabase) return null;
+    const { data: itemsRes, error: itemsErr } = await supabase.from('menu_items').select('*');
+    if(itemsErr) throw itemsErr;
+    const items = (itemsRes||[]).map(r=>({ id:r.id, name:r.name, price:Number(r.price||0), veg:!!r.veg, category:r.category||'Misc', available:!!r.available }));
+    const categories = Array.from(new Set(items.map(i=>i.category))).sort();
+    const payload = { items, categories };
+    saveRemote(payload);
+    return payload;
+  }catch(e){ return null; }
+}
+
 export function getMenu(){
+  const remote = loadRemote();
+  const base = remote || data;
   const over = loadMenuOverrides();
   const removed = Array.isArray(over.removed) ? new Set(over.removed) : new Set();
   const edited = over.edited && typeof over.edited === "object" ? over.edited : {};
   const added = Array.isArray(over.added) ? over.added : [];
   const availability = over.availability && typeof over.availability === "object" ? over.availability : {};
 
-  let items = data.items
+  let items = (base.items||data.items)
     .filter(it => !removed.has(it.id))
     .map(it => edited[it.id] ? { ...it, ...edited[it.id] } : it)
     .map(it => availability[it.id] != null ? { ...it, available: !!availability[it.id] } : it);
@@ -29,7 +49,7 @@ export function getMenu(){
   items = items.concat(added);
 
   const addedCats = added.map(a => a.category).filter(Boolean);
-  const categories = Array.from(new Set([...(data.categories||[]), ...addedCats]));
+  const categories = Array.from(new Set([...(base.categories||data.categories||[]), ...addedCats]));
 
   return { categories, items };
 }
