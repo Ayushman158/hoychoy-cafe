@@ -34,7 +34,7 @@ export default function Footer(){
           <ul className="flex flex-col gap-2 text-[#cfcfcf]">
             <li><a href={`https://api.whatsapp.com/send?phone=${OWNER_PHONE}`} className="hover:text-white">WhatsApp</a></li>
             <li><a href="https://www.instagram.com/hoychoy_cafe/" target="_blank" rel="noreferrer" className="hover:text-white">Instagram</a></li>
-            <li><a href="mailto:info@hoychoy.example" className="hover:text-white">Email</a></li>
+            <li><a href="mailto:hoychoycafe@gmail.com" className="hover:text-white">Email</a></li>
             <li><a href="https://maps.google.com" target="_blank" rel="noreferrer" className="hover:text-white">Location</a></li>
           </ul>
         </div>

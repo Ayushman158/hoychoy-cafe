@@ -82,7 +82,12 @@ const NonVegIcon = () => (
 );
   const base=getMenu();
   const categories=["all",...(base.categories||[])];
-  const bestSellers=(base.items||[]).filter(i=>BEST_SELLER_IDS.includes(i.id));
+  const bestSellers=useMemo(()=>{
+    let list=(base.items||[]).filter(i=>BEST_SELLER_IDS.includes(i.id));
+    if(filter==='veg') list=list.filter(i=>i.veg);
+    if(filter==='nonveg') list=list.filter(i=>!i.veg);
+    return list;
+  },[filter]);
   const items=useMemo(()=>{
     const q=query.trim().toLowerCase();
     return (base.items||[]).filter(i=>{
