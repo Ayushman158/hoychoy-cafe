@@ -38,6 +38,7 @@ function img(id){
 export default function Menu({cart, setCart, onProceed}){
   const [filters,setFilters]=useState([]);
   const [cat,setCat]=useState(null);
+  const [menuOpen,setMenuOpen]=useState(false);
   const [justAdded,setJustAdded]=useState(null);
   const [query,setQuery]=useState("");
   const VegIcon = () => (
@@ -122,8 +123,24 @@ const NonVegIcon = () => (
             <span className="text-[#f5c84a]" style={{textShadow:"0 0 22px rgba(245,200,74,0.6), 0 0 8px rgba(245,200,74,0.5)"}}>Choy</span>
             <span> Café</span>
           </span>
-          <a href="/about" className="px-3 py-1 rounded-lg border border-[#222] text-[#f5c84a] hover:bg-[#1a1a1a]">About</a>
+          <div className="relative">
+            <button onClick={()=>setMenuOpen(o=>!o)} className="px-3 py-1 rounded-lg border border-[#222] text-[#f5c84a] hover:bg-[#1a1a1a]">☰</button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[49]" onClick={()=>setMenuOpen(false)}></div>
+                <div className="fixed right-0 top-0 bottom-0 w-64 bg-[#0f0f0f] border-l border-[#222] z-[50] p-4 flex flex-col">
+                  <div className="flex items-center justify-end mb-4">
+                    <button onClick={()=>setMenuOpen(false)} className="px-2 py-1 rounded-lg border border-[#222]">✕</button>
+                  </div>
+                  <a href="/" className="block px-2 py-2 rounded hover:bg-[#1a1a1a]">Main Menu</a>
+                  <a href="/about" className="block px-2 py-2 rounded hover:bg-[#1a1a1a]">About</a>
+                  <a href="/reserve" className="block px-2 py-2 rounded hover:bg-[#1a1a1a]">Reservations</a>
+                </div>
+              </>
+            )}
+          </div>
         </div>
+        
         <div className="mt-3">
           <input
             className="w-full bg-[#111] border border-[#222] rounded-xl p-2"

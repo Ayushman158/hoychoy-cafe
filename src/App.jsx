@@ -11,6 +11,7 @@ import RefundCancellation from "./components/RefundCancellation.jsx";
 import Shipping from "./components/Shipping.jsx";
 import About from "./components/About.jsx";
 import Footer from "./components/Footer.jsx";
+import Reservation from "./components/Reservation.jsx";
 import { OWNER_PHONE, MERCHANT_NAME } from "./config.js";
 import { generateOrderId } from "./utils/order.js";
 import { getMenu, fetchMenuRemoteAndCache } from "./utils/menu.js";
@@ -35,7 +36,7 @@ export default function App(){
       setView('payment');
     }
     const p = window.location.pathname.replace(/^\/+/,"");
-    if(['privacy','terms','refund','shipping','about'].includes(p)){
+    if(['privacy','terms','refund','shipping','about','reserve'].includes(p)){
       setPolicy(p);
       setView('policy');
     }
@@ -94,6 +95,10 @@ export default function App(){
     if(policy==='terms') return <Terms onBack={back}/>;
     if(policy==='refund') return <RefundCancellation onBack={back}/>;
     if(policy==='shipping') return <Shipping onBack={back}/>;
+    if(policy==='reserve') return (<>
+      <Reservation onBack={back} />
+      <Footer />
+    </>);
     return (<>
       <About onBack={back}/>
       <Footer />
