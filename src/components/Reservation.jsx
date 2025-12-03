@@ -15,7 +15,6 @@ export default function Reservation({onBack}){
   const ClockIcon=()=> (<svg viewBox="0 0 24 24" className="w-5 h-5 text-[#cfcfcf]" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>);
   const UsersIcon=()=> (<svg viewBox="0 0 24 24" className="w-5 h-5 text-[#cfcfcf]" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>);
   const SparkleIcon=()=> (<svg viewBox="0 0 24 24" className="w-5 h-5 text-[#cfcfcf]" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z"/></svg>);
-  const NoteIcon=()=> (<svg viewBox="0 0 24 24" className="w-5 h-5 text-[#cfcfcf]" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 2h8a2 2 0 0 1 2 2v12l-4 4H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 18v4"/></svg>);
 
   function submit(e){
     e.preventDefault();
@@ -38,63 +37,68 @@ export default function Reservation({onBack}){
           <span className="mx-6">Now accepting reservations for birthdays, anniversaries & group celebrations!</span>
         </div>
       </div>
-      <form onSubmit={submit} className="mt-4 bg-[#0f0f0f] border border-[#222] rounded-2xl p-4 flex flex-col gap-3">
-        <div className="row">
-          <label className="w-28 text-[#cfcfcf]">Name</label>
-          <div className="flex-1 flex items-center gap-2 bg-[#111] border border-[#222] rounded-xl px-3">
+      <form onSubmit={submit} className="mt-4 bg-[#0f0f0f] border border-[#222] rounded-2xl p-4 flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-[#f5c84a] font-medium">
             <UserIcon />
-            <input className="flex-1 bg-transparent p-2 outline-none" value={name} onChange={e=>setName(e.target.value)} required />
+            <span>Full Name *</span>
           </div>
+          <input className="w-full bg-[#111] border border-[#222] rounded-xl p-3 outline-none" placeholder="Your full name" value={name} onChange={e=>setName(e.target.value)} required />
         </div>
-        <div className="row">
-          <label className="w-28 text-[#cfcfcf]">Phone</label>
-          <div className="flex-1 flex items-center gap-2 bg-[#111] border border-[#222] rounded-xl px-3">
+
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-[#f5c84a] font-medium">
             <PhoneIcon />
-            <input className="flex-1 bg-transparent p-2 outline-none" value={phone} onChange={e=>setPhone(e.target.value)} required />
+            <span>Phone Number *</span>
           </div>
+          <input className="w-full bg-[#111] border border-[#222] rounded-xl p-3 outline-none" placeholder="Your phone number" value={phone} onChange={e=>setPhone(e.target.value)} required />
         </div>
-        <div className="row">
-          <label className="w-28 text-[#cfcfcf]">Date</label>
-          <div className="flex-1 flex items-center gap-2 bg-[#111] border border-[#222] rounded-xl px-3">
-            <CalendarIcon />
-            <input type="date" className="flex-1 bg-transparent p-2 outline-none" value={date} onChange={e=>setDate(e.target.value)} required />
-          </div>
-        </div>
-        <div className="row">
-          <label className="w-28 text-[#cfcfcf]">Time</label>
-          <div className="flex-1 flex items-center gap-2 bg-[#111] border border-[#222] rounded-xl px-3">
-            <ClockIcon />
-            <input type="time" className="flex-1 bg-transparent p-2 outline-none" value={time} onChange={e=>setTime(e.target.value)} required />
-          </div>
-        </div>
-        <div className="row">
-          <label className="w-28 text-[#cfcfcf]">Guests</label>
-          <div className="flex-1 flex items-center gap-2 bg-[#111] border border-[#222] rounded-xl px-3">
+
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-[#f5c84a] font-medium">
             <UsersIcon />
-            <input type="number" min="1" className="flex-1 bg-transparent p-2 outline-none" value={guests} onChange={e=>setGuests(parseInt(e.target.value||"0",10))} required />
+            <span>Number of Guests *</span>
           </div>
+          <input type="number" min="1" className="w-full bg-[#111] border border-[#222] rounded-xl p-3 outline-none" placeholder="e.g., 10" value={guests} onChange={e=>setGuests(parseInt(e.target.value||"0",10))} required />
         </div>
-        <div className="row">
-          <label className="w-28 text-[#cfcfcf]">Event</label>
-          <div className="flex-1 flex items-center gap-2 bg-[#111] border border-[#222] rounded-xl px-3">
+
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-[#f5c84a] font-medium">
+            <CalendarIcon />
+            <span>Date *</span>
+          </div>
+          <input type="date" className="w-full bg-[#111] border border-[#222] rounded-xl p-3 outline-none" value={date} onChange={e=>setDate(e.target.value)} required />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-[#f5c84a] font-medium">
+            <ClockIcon />
+            <span>Time *</span>
+          </div>
+          <input type="time" className="w-full bg-[#111] border border-[#222] rounded-xl p-3 outline-none" value={time} onChange={e=>setTime(e.target.value)} required />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-[#f5c84a] font-medium">
             <SparkleIcon />
-            <select className="flex-1 bg-transparent p-2 outline-none" value={event} onChange={e=>setEvent(e.target.value)}>
-              <option>Birthday</option>
-              <option>Anniversary</option>
-              <option>Corporate</option>
-              <option>Farewell</option>
-              <option>Other</option>
-            </select>
+            <span>Event</span>
           </div>
+          <select className="w-full bg-[#111] border border-[#222] rounded-xl p-3 outline-none" value={event} onChange={e=>setEvent(e.target.value)}>
+            <option>Birthday</option>
+            <option>Anniversary</option>
+            <option>Corporate</option>
+            <option>Farewell</option>
+            <option>Other</option>
+          </select>
         </div>
-        <div className="row items-start">
-          <label className="w-28 text-[#cfcfcf]">Notes</label>
-          <div className="flex-1 flex items-start gap-2 bg-[#111] border border-[#222] rounded-xl px-3">
-            <NoteIcon />
-            <textarea className="flex-1 bg-transparent p-2 outline-none" rows={3} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Special requests, budget, theme…" />
-          </div>
+
+        <div className="flex flex-col gap-1">
+          <div className="text-[#f5c84a] font-medium">Special Requests</div>
+          <textarea className="w-full bg-[#111] border border-[#222] rounded-xl p-3 outline-none" rows={3} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Dietary restrictions, occasion, seating preferences…" />
         </div>
-        <button type="submit" className="btn btn-primary">Send WhatsApp Enquiry</button>
+
+        <button type="submit" className="btn btn-primary">Confirm Reservation</button>
+        <div className="text-xs text-[#cfcfcf]">* Required</div>
       </form>
     </main>
   );
