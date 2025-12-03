@@ -96,6 +96,7 @@ const NonVegIcon = () => (
   const items=useMemo(()=>{
     const q=query.trim().toLowerCase();
     return (base.items||[]).filter(i=>{
+      if (BEST_SELLER_IDS.includes(i.id)) return false;
       const okF= !filters.length || ((filters.includes('veg')&&i.veg) || (filters.includes('nonveg')&&!i.veg));
       const okC= !cat || i.category===cat || (
         cat==="Appetizers" && (i.category==="Appetizers (Veg)"||i.category==="Appetizers (Non-Veg)")
