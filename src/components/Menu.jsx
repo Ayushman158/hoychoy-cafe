@@ -197,7 +197,10 @@ const NonVegIcon = () => (
                 <img src={img(item.id)} alt={item.name} className="w-20 h-20 rounded-lg object-cover" />
               )}
               <div className="flex flex-col gap-1">
-                <div className="font-semibold flex items-center gap-2">{item.name}{item.veg?<VegIcon />:<NonVegIcon />}</div>
+                <div className="font-semibold flex items-center gap-2">
+                  {item.veg?<VegIcon />:<NonVegIcon />}
+                  <span>{item.name}</span>
+                </div>
                 <div className="text-muted">₹{item.price}</div>
                 <div className="flex items-center gap-2 text-xs">
                   <span className={`inline-block w-2 h-2 rounded-full ${item.available?'bg-success':'bg-error'}`}></span>
