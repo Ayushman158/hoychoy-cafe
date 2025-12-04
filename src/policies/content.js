@@ -122,6 +122,8 @@ Incorrect address provided
 
 Delay caused by traffic or weather
 
+No return, No replacement / exchange will be given
+
 4. Refund Timeline
 Approved refunds will be processed within 5–7 business days through the original payment method.
 
