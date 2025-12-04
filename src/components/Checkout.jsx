@@ -16,6 +16,7 @@ export default function Checkout({cart, setCart, onBack, onSubmit}){
   const valid=name.trim()&&phone.replace(/\D/g,"").length===10&&address.trim()&&((!!geo)||isValidManualLink(manualLink));
   const upiIntent = buildUpiIntent(UPI_ID, total, MERCHANT_NAME, "Order at HoyChoy Café", `HC-${Date.now()}`);
   const [copied,setCopied]=useState(false);
+  const [agree,setAgree]=useState(true);
 
   useEffect(()=>{localStorage.setItem("hc_cart",JSON.stringify(cart));},[cart]);
 
@@ -106,6 +107,10 @@ export default function Checkout({cart, setCart, onBack, onSubmit}){
 
       <div className="card mt-3">
         <div className="section-title">PhonePe Payment</div>
+        <label className="flex items-center gap-2 mt-1 text-sm">
+          <input type="checkbox" className="w-4 h-4" checked={agree} onChange={e=>setAgree(e.target.checked)} />
+          <span>I agree to the <a href="/terms" className="text-[#f5c84a] underline">Terms & Conditions</a></span>
+        </label>
         <button className={`btn btn-primary w-full`} onClick={payNow}>Pay ₹{total}</button>
         <div className="text-muted text-xs mt-2">You will be redirected to PhonePe to complete payment.</div>
       </div>
