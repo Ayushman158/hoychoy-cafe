@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getMenu } from "../utils/menu.js";
+import { BACKEND_URL } from "../config.js";
 
 const BEST_SELLER_IDS = [
   "octopus",
@@ -41,6 +42,8 @@ export default function Menu({cart, setCart, onProceed}){
   const [menuOpen,setMenuOpen]=useState(false);
   const [justAdded,setJustAdded]=useState(null);
   const [query,setQuery]=useState("");
+  const [appOpen,setAppOpen]=useState(true);
+  const [appReason,setAppReason]=useState('OPEN');
   const VegIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" strokeWidth="2">
     <rect
@@ -112,6 +115,14 @@ const NonVegIcon = () => (
 
   useEffect(()=>{localStorage.setItem("hc_cart",JSON.stringify(cart));},[cart]);
 
+  useEffect(()=>{
+    async function load(){
+      try{ const r=await fetch(`${BACKEND_URL}/api/app-status`); const d=await r.json(); if(r.ok){ setAppOpen(!!d.open); setAppReason(d.reason||'OPEN'); } }
+      catch{}
+    }
+    load();
+  },[]);
+
   function add(id){setCart(c=>({...c,[id]:(c[id]||0)+1}));setJustAdded(id);setTimeout(()=>setJustAdded(null),1000);} 
 
   return (
@@ -145,6 +156,11 @@ const NonVegIcon = () => (
           </div>
         </div>
         
+        {!appOpen && appReason==='CLOSED_BY_OWNER' && (
+          <div className="mt-3 p-2 border border-[#222] rounded-xl bg-[#1a1a1a] text-[#f5c84a]">
+            <span>😔 Sorry, our restaurant is closed today. Online orders are available 12:00–9:00 PM.</span>
+          </div>
+        )}
         <div className="mt-3">
           <input
             className="w-full bg-[#111] border border-[#222] rounded-xl p-2"
@@ -239,8 +255,8 @@ const NonVegIcon = () => (
       <button
         type="button"
         onClick={onProceed}
-        disabled={count===0}
-        className={`fixed right-3 bottom-32 z-50 bg-primary text-black rounded-full px-3 py-2 font-bold flex items-center gap-2 shadow-xl ${count===0?'opacity-60 cursor-not-allowed':''}`}
+        disabled={count===0 || !appOpen}
+        className={`fixed right-3 bottom-32 z-50 rounded-full px-3 py-2 font-bold flex items-center gap-2 shadow-xl ${count===0 || !appOpen ? 'opacity-60 cursor-not-allowed bg-[#333] text-[#999]' : 'bg-primary text-black'}`}
       >
         <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/>
@@ -252,7 +268,7 @@ const NonVegIcon = () => (
         <div className="row font-bold">
           <span>Total</span><span className="price">₹{Object.entries(cart).reduce((s,[id,q])=>{const it=(base.items||[]).find(x=>x.id===id);return s+(it?it.price*q:0);},0)}</span>
         </div>
-        <button className={`btn btn-primary w-full mt-2 ${count===0?'btn-disabled':''}`} disabled={count===0} onClick={onProceed}>Proceed to Checkout</button>
+        <button className={`btn w-full mt-2 ${count===0 || !appOpen ? 'btn-disabled' : 'btn-primary'}`} disabled={count===0 || !appOpen} onClick={onProceed}>Proceed to Checkout</button>
       </div>
     </main>
   );

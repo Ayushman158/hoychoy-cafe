@@ -14,7 +14,8 @@ import Footer from "./components/Footer.jsx";
 import Reservation from "./components/Reservation.jsx";
 import { OWNER_PHONE, MERCHANT_NAME } from "./config.js";
 import { generateOrderId } from "./utils/order.js";
-import { getMenu, fetchMenuRemoteAndCache } from "./utils/menu.js";
+import { getMenu, fetchMenuRemoteAndCache, fetchBackendOverridesAndCache } from "./utils/menu.js";
+import Admin from "./components/Admin.jsx";
 
 export default function App(){
   const [view,setView]=useState("splash");
@@ -27,7 +28,7 @@ export default function App(){
 
   useEffect(()=>{localStorage.setItem("hc_cart",JSON.stringify(cart));},[cart]);
 
-  useEffect(()=>{ fetchMenuRemoteAndCache().catch(()=>{}); },[]);
+  useEffect(()=>{ fetchMenuRemoteAndCache().catch(()=>{}); fetchBackendOverridesAndCache().catch(()=>{}); },[]);
   useEffect(()=>{
     const params = new URLSearchParams(window.location.search);
     const id = params.get('merchantTransactionId');
@@ -36,7 +37,7 @@ export default function App(){
       setView('payment');
     }
     const p = window.location.pathname.replace(/^\/+/,"");
-    if(['privacy','terms','refund','shipping','about','reserve'].includes(p)){
+    if(['privacy','terms','refund','shipping','about','reserve','admin'].includes(p)){
       setPolicy(p);
       setView('policy');
     }
@@ -97,6 +98,10 @@ export default function App(){
     if(policy==='shipping') return <Shipping onBack={back}/>;
     if(policy==='reserve') return (<>
       <Reservation onBack={back} />
+      <Footer />
+    </>);
+    if(policy==='admin') return (<>
+      <Admin />
       <Footer />
     </>);
     return (<>

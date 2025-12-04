@@ -1,5 +1,6 @@
 import data from "../data/menu.json";
 import { supabase } from "./supabase";
+import { BACKEND_URL } from "../config.js";
 
 const KEY = "hc_menu_overrides";
 
@@ -19,6 +20,19 @@ const REMOTE_KEY = "hc_menu_remote";
 function loadRemote(){try{ return JSON.parse(localStorage.getItem(REMOTE_KEY)||"null"); }catch{ return null; }}
 function saveRemote(menu){localStorage.setItem(REMOTE_KEY, JSON.stringify(menu));}
 
+const OV_REMOTE_KEY = "hc_menu_backend_overrides";
+function loadBackendOverrides(){try{ return JSON.parse(localStorage.getItem(OV_REMOTE_KEY)||"null"); }catch{ return null; }}
+function saveBackendOverrides(v){localStorage.setItem(OV_REMOTE_KEY, JSON.stringify(v));}
+
+export async function fetchBackendOverridesAndCache(){
+  try{
+    const res = await fetch(`${BACKEND_URL}/api/menu-overrides`);
+    const data = await res.json();
+    if(res.ok){ saveBackendOverrides(data||{}); return data||{}; }
+    return null;
+  }catch{ return null; }
+}
+
 export async function fetchMenuRemoteAndCache(){
   try{
     if(!supabase) return null;
@@ -35,7 +49,14 @@ export async function fetchMenuRemoteAndCache(){
 export function getMenu(){
   const remote = loadRemote();
   const base = remote || data;
-  const over = loadMenuOverrides();
+  const overLocal = loadMenuOverrides();
+  const overBackend = loadBackendOverrides() || {};
+  const over = {
+    removed: Array.isArray(overLocal.removed)?overLocal.removed:(Array.isArray(overBackend.removed)?overBackend.removed:[]),
+    edited: (overLocal.edited && typeof overLocal.edited==='object')?overLocal.edited:(overBackend.edited||{}),
+    added: Array.isArray(overLocal.added)&&overLocal.added.length?overLocal.added:(Array.isArray(overBackend.added)?overBackend.added:[]),
+    availability: (overLocal.availability && typeof overLocal.availability==='object')?overLocal.availability:(overBackend.availability||{})
+  };
   const removed = Array.isArray(over.removed) ? new Set(over.removed) : new Set();
   const edited = over.edited && typeof over.edited === "object" ? over.edited : {};
   const added = Array.isArray(over.added) ? over.added : [];
