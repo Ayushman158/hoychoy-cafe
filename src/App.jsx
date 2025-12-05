@@ -18,10 +18,10 @@ import { getMenu, fetchMenuRemoteAndCache, fetchBackendOverridesAndCache } from 
 import Admin from "./components/Admin.jsx";
 
 export default function App(){
+  const [view,setView]=useState("splash");
   useEffect(() => {
     console.log('Current view:', view);
   }, [view]);
-  const [view,setView]=useState("splash");
   const [returnTxn,setReturnTxn]=useState(null);
   const [policy,setPolicy]=useState(null);
   const [cart,setCart]=useState(()=>{try{const r=localStorage.getItem("hc_cart");return r?JSON.parse(r):{};}catch{return {}}});
