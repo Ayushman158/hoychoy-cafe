@@ -18,6 +18,9 @@ import { getMenu, fetchMenuRemoteAndCache, fetchBackendOverridesAndCache } from 
 import Admin from "./components/Admin.jsx";
 
 export default function App(){
+  useEffect(() => {
+    console.log('Current view:', view);
+  }, [view]);
   const [view,setView]=useState("splash");
   const [returnTxn,setReturnTxn]=useState(null);
   const [policy,setPolicy]=useState(null);
@@ -29,19 +32,22 @@ export default function App(){
   useEffect(()=>{localStorage.setItem("hc_cart",JSON.stringify(cart));},[cart]);
 
   useEffect(()=>{ fetchMenuRemoteAndCache().catch(()=>{}); fetchBackendOverridesAndCache().catch(()=>{}); },[]);
-  useEffect(()=>{
+  // Temporarily commented out for debugging
+/*
+useEffect(()=>{
     const params = new URLSearchParams(window.location.search);
     const id = params.get('merchantTransactionId');
     if(id){
       setReturnTxn(id);
       setView('payment');
     }
-    const p = window.location.pathname.replace(/^\/+/,"");
+    const p = window.location.pathname.replace(/^\/+/,'');
     if(['privacy','terms','refund','shipping','about','reserve','admin'].includes(p)){
       setPolicy(p);
       setView('policy');
     }
   },[]);
+*/
 
   function proceed(){setView("checkout");}
   function backToMenu(){setView("menu");}
