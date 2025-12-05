@@ -47,7 +47,6 @@ export default function Menu({cart, setCart, onProceed}){
 
   return (
     <div>
-      {/* Clear Cart Button */}
       <button
         className="btn w-full bg-red-500 text-white mt-2"
         disabled={Object.keys(cart).length === 0}
@@ -55,7 +54,6 @@ export default function Menu({cart, setCart, onProceed}){
       >
         Clear Cart
       </button>
-      {/* Other Menu Code */}
     </div>
   );
 }
